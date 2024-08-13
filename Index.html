@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic: The Gathering Deck</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('background1.png');
+            background-size: cover;
+            background-attachment: fixed;
+            color: white;
+            text-shadow: 2px 2px 1px black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px;
+        }
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-button {
+            margin: 5px 0;
+            background-color: black;
+            color: gold;
+            border: 1px solid gold;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 24px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-button:hover {
+            background-color: gold;
+            color: black;
+        }
+        .nav-menu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 90px;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid gold;
+            padding: 10px;
+            border-radius: 24px;
+            z-index: 1002;
+            width: 220px;
+        }
+        .nav-menu-close {
+            position: absolute;
+            top: 2px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: gold;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1400px;
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-top: 100px;
+            overflow-y: auto;
+            height: calc(100vh - 100px);
+            scrollbar-width: thin;
+            scrollbar-color: neonblue black;
+        }
+        .container::-webkit-scrollbar {
+            width: 10px;
+        }
+        .container::-webkit-scrollbar-track {
+            background: black;
+        }
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0);
+            border: 2px solid neonblue;
+            border-radius: 10px;
+        }
+        .container::-webkit-scrollbar-thumb:hover {
+            background: neonblue;
+        }
+        .card-list {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            padding: 0;
+            list-style-type: none;
+            width: 100%;
+        }
+        .card-item {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card-legalities {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 5px;
+            width: 100%;
+        }
+        .symbol {
+            font-size: 1em;
+            font-weight: bold;
+            border: 1px solid red;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: red;
+            margin: 0 2px;
+        }
+        .symbol.legal {
+            color: green;
+            border-color: green;
+        }
+        .card-name {
+            font-weight: bold;
+            color: white;
+            text-shadow: 
+                -1px -1px 0 blue,  
+                1px -1px 0 blue,
+                -1px 1px 0 blue,
+                1px 1px 0 blue,
+                2px 2px 5px black;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 10px;
+            border-radius: 4px;
+            text-align: center;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        .card-image {
+            margin-top: 5px;
+            width: 250px;
+            height: 310px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            z-index: 0;
+        }
+        .card-price {
+            margin-top: 5px;
+            color: white;
+            text-shadow: 2px 2px 2px black;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 4px;
+            border-radius: 2px;
+            text-align: center;
+        }
+        .card-version {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-family: Calibri, sans-serif;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px darkblue;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .input-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: calc(100% - 5px);
+            max-width: 200px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 12px;
+            position: absolute;
+            top: 550px;
+            left: 0px;
+            border-radius: 24px;
+            z-index: 1003;
+            border: 1px solid gold;
+        }
+        textarea {
+            width: 80%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid gold;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: gold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            resize: vertical;
+            outline: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        textarea:focus {
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid gold;
+            background-color: black;
+            color: gold;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: gold;
+            border: 1px solid gold;
+            border-radius: 4px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            background-color: rgba(0, 0, 0, 1);
+            box-shadow: 0 0 10px gold;
+        }
+        .totals {
+            margin-top: 20px;
+            color: white;
+            text-shadow: 2px 2px 5px black;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 4px;
+            border-radius: 4px;
+            text-align: center;
+            width: 100%;
+        }
+        .toggle-button, .rotate-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        #progress-bar {
+            width: 250px;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+            z-index: 10;
+        }
+        #progress-bar-fill {
+            height: 20px;
+            background-color: #4caf50;
+            width: 0%;
+            position: relative;
+            z-index: 11;
+        }
+        .hidden {
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            margin: 15% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            background-color: #fefefe;
+            border: 1px solid #888;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .modal-image {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        .filter-container input {
+            width: auto;
+            margin: 0;
+        }
+        #drop-area {
+            border: 2px dashed gold;
+            padding: 20px;
+            text-align: center;
+            color: gold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            background-color: black;
+        }
+        #drop-area p {
+            margin: 0;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        .tooltip-type {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        .text-filter {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid gold;
+            background-color: black;
+            color: gold;
+            outline: none;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .text-filter::placeholder {
+            color: gold;
+        }
+        .text-filter:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+        .donation-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <div id="progress-bar" class="hidden">
+        <div id="progress-bar-fill"></div>
+    </div>
+    <div class="menu-container">
+        <button class="nav-button" onclick="toggleNavMenu()">Menu</button>
+        <div class="nav-menu" id="nav-menu">
+            <span class="nav-menu-close" onclick="toggleNavMenu()">&times;</span>
+            <div id="drop-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                <p>Drag & Drop Excel File Here</p>
+            </div>
+            <button class="nav-button" onclick="toggleInputContainer()">Card Search</button>
+            <button class="nav-button" onclick="toggleTooltips()">Toggle Tooltips</button>
+            <button class="nav-button" onclick="toggleDonate()">Donate</button>
+            <input type="file" id="excelUpload" accept=".xlsx" onchange="handleFileUpload(event)" style="display: none;">
+            <a href="MTGCardSearch.html" class="nav-button">Historical Quicklist</a>
+            <button id="downloadExcelButton" class="nav-button" onclick="downloadExcel()">Download to Excel</button>
+            <button class="nav-button" onclick="populateHelp()">Help</button>
+            <div class="input-container">
+                <input type="text" id="textFilter" class="text-filter" placeholder="Search cards by name or text" oninput="filterCardsByText()">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donation Section (Initially Hidden) -->
+<div class="donation-button" id="donation-section" style="display: none; margin: 20px; text-align: center;">
+    <form action="https://www.paypal.com/donate" method="post" target="_blank">
+        <input type="hidden" name="business" value="LQJFL3GQ4XXZW">
+        <input type="hidden" name="item_name" value="Additional profit will be used to create a hosted server with Database access. Possible user easy trade share, well trying.">
+        <input type="hidden" name="currency_code" value="ZAR">
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button">
+        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+    </form>
+    <div style="margin-top: 10px;">
+        <img src="QR Code.png" alt="QR Code" style="width: 150px; height: 150px;">
+    </div>
+</div>
+
+<div class="input-container" id="input-container">
+    <textarea id="deck-input" placeholder="Enter your deck list here. Each card on a new line."></textarea>
+    <br>
+    <button onclick="fetchCardImages()">Fetch Card Images</button>
+    <button id="close-input-container" onclick="closeInputContainer()">Close</button>
+</div>
+<div class="input-container" id="search-container">
+    <input id="name" placeholder="Card Name">
+    <input id="type" placeholder="Card Type">
+    <input id="colors" placeholder="Colors (comma separated)">
+    <input id="rarity" placeholder="Rarity">
+    <input id="setName" placeholder="Set Name">
+    <button onclick="searchCards()">Search</button>
+    <button onclick="closeSearchContainer()">Close</button>
+</div>
+<div class="container">
+    <div class="filter-container">
+        <label><input type="checkbox" id="standardFilter" onclick="filterCards()"> Standard</label>
+        <label><input type="checkbox" id="commanderFilter" onclick="filterCards()"> Commander</label>
+        <label><input type="checkbox" id="pioneerFilter" onclick="filterCards()"> Pioneer</label>
+        <label><input type="checkbox" id="brawlFilter" onclick="filterCards()"> Brawl</label>
+        <label><input type="checkbox" id="thgFilter" onclick="filterCards()"> Two-Headed Giant</label>
+        <label><input type="checkbox" id="pauperFilter" onclick="filterCards()"> Pauper</label>
+        <label><input type="checkbox" id="priceToggle" onclick="togglePrices()"> Show Scryfall Prices</label>
+    </div>
+    <ul class="card-list" id="card-list"></ul>
+
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" class="modal-image" src="" alt="Card Image">
+            <button id="toggleButton" class="toggle-button" style="display: none;" onclick="toggleImage()">Show Back</button>
+            <button id="rotateButton" class="rotate-button" onclick="rotateImage()">Rotate</button>
+        </div>
+    </div>
+</div>
+<div id="tooltip-type" class="tooltip"></div>
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+        }).catch(function(error) {
+            console.log('Service Worker registration failed:', error);
+        });
+    }
+
+    let currentBatchIndex = 0;
+    let totalCards = 0;
+    let existingCardsMap = {};
+    let tooltipsEnabled = true;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const cardList = document.getElementById('card-list');
+    const tooltip = document.createElement('div');
+    const tooltipType = document.createElement('div');
+    tooltipType.className = 'tooltip-type';
+    tooltip.className = 'tooltip';
+    document.body.appendChild(tooltipType);
+    document.body.appendChild(tooltip);
+
+    new Sortable(cardList, {
+        animation: 150,
+        onEnd: (evt) => {
+            let itemEl = evt.item;
+            console.log(`Moved ${itemEl.querySelector('.card-name').innerText} from ${evt.oldIndex} to ${evt.newIndex}`);
+        },
+    });
+
+    cardList.addEventListener('mouseover', (event) => {
+        if (!tooltipsEnabled) return;
+        const cardItem = event.target.closest('.card-item');
+        if (cardItem) {
+            const cardType = cardItem.getAttribute('data-type');
+            const cardText = cardItem.getAttribute('data-text');
+            if (cardText) {
+                tooltip.innerHTML = cardText;
+                tooltip.style.display = 'block';
+            }
+            if (cardType) {
+                tooltipType.innerHTML = cardType;
+                tooltipType.style.display = 'block';
+            }
+        }
+    });
+
+    cardList.addEventListener('mousemove', (event) => {
+        if (!tooltipsEnabled) return;
+        const tooltipHeight = tooltip.offsetHeight;
+        tooltip.style.left = `${event.pageX + 15}px`;
+        tooltip.style.top = `${event.pageY + 15}px`;
+        tooltipType.style.left = `${event.pageX + 15}px`;
+        tooltipType.style.top = `${event.pageY + 15 + tooltipHeight + 10}px`;
+    });
+
+    cardList.addEventListener('mouseout', (event) => {
+        if (!tooltipsEnabled) return;
+        const cardItem = event.target.closest('.card-item');
+        if (cardItem) {
+            tooltip.style.display = 'none';
+            tooltipType.style.display = 'none';
+        }
+    });
+});
+
+function toggleDonate() {
+    const donationSection = document.getElementById('donation-section');
+    donationSection.style.display = donationSection.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleTooltips() {
+    tooltipsEnabled = !tooltipsEnabled;
+}
+
+    function filterCards() {
+        const standardFilter = document.getElementById('standardFilter').checked;
+        const commanderFilter = document.getElementById('commanderFilter').checked;
+        const pioneerFilter = document.getElementById('pioneerFilter').checked;
+        const brawlFilter = document.getElementById('brawlFilter').checked;
+        const thgFilter = document.getElementById('thgFilter').checked;
+        const pauperFilter = document.getElementById('pauperFilter').checked;
+
+        document.querySelectorAll('.card-item').forEach(item => {
+            const standardLegal = item.querySelector('.symbol[data-type="standard"]').classList.contains('legal');
+            const commanderLegal = item.querySelector('.symbol[data-type="commander"]').classList.contains('legal');
+            const pioneerLegal = item.querySelector('.symbol[data-type="pioneer"]').classList.contains('legal');
+            const brawlLegal = item.querySelector('.symbol[data-type="brawl"]').classList.contains('legal');
+            const thgLegal = item.querySelector('.symbol[data-type="thg"]').classList.contains('legal');
+            const pauperLegal = item.querySelector('.symbol[data-type="pauper"]').classList.contains('legal');
+
+            if (standardFilter && !standardLegal) {
+                item.style.display = 'none';
+            } else if (commanderFilter && !commanderLegal) {
+                item.style.display = 'none';
+            } else if (pioneerFilter && !pioneerLegal) {
+                item.style.display = 'none';
+            } else if (brawlFilter && !brawlLegal) {
+                item.style.display = 'none';
+            } else if (thgFilter && !thgLegal) {
+                item.style.display = 'none';
+            } else if (pauperFilter && !pauperLegal) {
+                item.style.display = 'none';
+            } else {
+                item.style.display = '';
+            }
+        });
+    }
+
+function populateHelp() {
+    const deckInput = document.getElementById('deck-input');
+    deckInput.value = `examples\n1x Bloodletter of Aclazotz 92p\n1x Bloodletter of Aclazotz 92\nSheoldred\nDelayed Blast Fireball 676\n1x Etali Primal Conqueror`;
+
+    // Display the card search input container
+    toggleInputContainer();
+
+    // Trigger the card search
+    fetchCardImages();
+}
+
+function fetchCardImages() {
+    document.getElementById('input-container').style.display = 'none';
+    document.getElementById('nav-menu').style.display = 'none';
+
+    const deckInput = document.getElementById('deck-input').value.trim();
+    const newCardList = deckInput.split('\n').map(line => line.trim());
+    updateCardList(newCardList);
+    totalCards = Object.keys(existingCardsMap).length;
+    currentBatchIndex = 0;
+    document.getElementById('card-list').innerHTML = '';
+    document.getElementById('progress-bar').classList.remove('hidden');
+    loadNextBatch();
+}
+
+function updateCardList(newCardList) {
+    const newCardsMap = {};
+    newCardList.forEach(card => {
+        const uniqueCardKey = card.toLowerCase();
+        newCardsMap[uniqueCardKey] = card;
+    });
+    existingCardsMap = { ...newCardsMap };
+}
+
+function loadNextBatch() {
+    if (currentBatchIndex >= totalCards) {
+        document.getElementById('progress-bar').classList.add('hidden');
+        return;
+    }
+
+    const batch = Object.keys(existingCardsMap).slice(currentBatchIndex, currentBatchIndex + 20);
+    currentBatchIndex += 20;
+
+    fetchBatch(batch).then(() => {
+        const progressPercentage = (currentBatchIndex / totalCards) * 100;
+        document.getElementById('progress-bar-fill').style.width = `${progressPercentage}%`;
+
+        if (currentBatchIndex < totalCards) {
+            setTimeout(loadNextBatch, 6900);
+        } else {
+            document.getElementById('progress-bar').classList.add('hidden');
+        }
+    });
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+}
+
+function fetchBatch(batch) {
+    const cardListElement = document.getElementById('card-list');
+
+    const fetchPromises = batch.map(uniqueCardKey => {
+        const card = existingCardsMap[uniqueCardKey];
+        let cardItem = document.querySelector(`.card-item[data-key="${uniqueCardKey}"]`);
+
+        if (!cardItem) {
+            cardItem = document.createElement('li');
+            cardItem.classList.add('card-item');
+            cardItem.setAttribute('data-key', uniqueCardKey);
+            cardListElement.appendChild(cardItem);
+        } else {
+            cardItem.innerHTML = '';
+        }
+
+        const cardLegalities = document.createElement('div');
+        cardLegalities.classList.add('card-legalities');
+        cardLegalities.innerHTML = `
+            <div class="symbol" data-type="standard">S</div>
+            <div class="symbol" data-type="commander">C</div>
+            <div class="symbol" data-type="pioneer">Pi</div>
+            <div class="symbol" data-type="brawl">B</div>
+            <div class="symbol" data-type="thg">THG</div>
+            <div class="symbol" data-type="pauper">Pu</div>
+        `;
+        cardItem.appendChild(cardLegalities);
+
+        const cardName = document.createElement('div');
+        cardName.classList.add('card-name');
+        
+        // Strip quantity and version from the card name for the API search
+        const strippedCardName = card.replace(/^\d+x\s*/, '').replace(/\s(\d+[a-z★]*)$/i, '');
+        cardName.textContent = strippedCardName;
+
+        if (card.toLowerCase().includes('token')) {
+            cardName.textContent += ' (Token - Not fetching price)';
+            cardItem.appendChild(cardName);
+            return Promise.resolve();
+        }
+
+        const [cleanedCardNameWithCount, cardNumber] = card.replace(/^\d+x\s*/, '').trim().split(/\s(\d+[a-z★]*)/i);
+        const cardImage = document.createElement('img');
+        cardImage.classList.add('card-image');
+        cardImage.src = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cleanedCardNameWithCount)}&format=image`;
+        cardImage.onerror = () => {
+            cardImage.src = 'https://via.placeholder.com/150x210?text=Card+Not+Found';
+        };
+        cardImage.onclick = () => {
+            openModal(cardImage.src, cleanedCardNameWithCount);
+        };
+
+        const cardPrice = document.createElement('div');
+        cardPrice.classList.add('card-price');
+        cardPrice.textContent = 'Loading price...';
+
+        cardItem.appendChild(cardName);
+        cardItem.appendChild(cardImage);
+        cardItem.appendChild(cardPrice);
+
+        const versionSelect = document.createElement('select');
+        versionSelect.classList.add('card-version');
+        versionSelect.onchange = () => {
+            updateCardImage(versionSelect.value, cardImage, cardPrice, cleanedCardNameWithCount);
+        };
+        cardItem.appendChild(versionSelect);
+
+        return fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cleanedCardNameWithCount)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Card not found');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle legalities
+                if (data.legalities) {
+                    if (data.legalities.standard === 'legal') {
+                        cardItem.querySelector('.symbol[data-type="standard"]').classList.add('legal');
+                    }
+                    if (data.legalities.commander === 'legal') {
+                        cardItem.querySelector('.symbol[data-type="commander"]').classList.add('legal');
+                    }
+                    if (data.legalities.pioneer === 'legal') {
+                        cardItem.querySelector('.symbol[data-type="pioneer"]').classList.add('legal');
+                    }
+                    if (data.legalities.brawl === 'legal') {
+                        cardItem.querySelector('.symbol[data-type="brawl"]').classList.add('legal');
+                    }
+                    if (data.legalities.duel === 'legal') { // Two-Headed Giant legality
+                        cardItem.querySelector('.symbol[data-type="thg"]').classList.add('legal');
+                    }
+                    if (data.legalities.pauper === 'legal') {
+                        cardItem.querySelector('.symbol[data-type="pauper"]').classList.add('legal');
+                    }
+                }
+
+                // Handle prices
+                if (data.prices && data.prices.usd) {
+                    const usdPrice = parseFloat(data.prices.usd);
+                    const zarPrice19 = (usdPrice * 19).toFixed(2);
+                    const zarPrice18 = (usdPrice * 18).toFixed(2);
+                    cardPrice.textContent = `USD: $${usdPrice} | ZAR (19): R${zarPrice19} | ZAR (18): R${zarPrice18}`;
+                } else {
+                    cardPrice.textContent = 'Price not available';
+                }
+
+                // Handle card details for transformed cards
+                let cardText = '';
+                let cardType = '';
+
+                if (data.layout === 'transform') {
+                    const frontFace = data.card_faces[0];
+                    const backFace = data.card_faces[1];
+
+                    cardText = frontFace.oracle_text;
+                    cardType = frontFace.type_line;
+
+                    cardItem.setAttribute('data-front-text', frontFace.oracle_text);
+                    cardItem.setAttribute('data-back-text', backFace.oracle_text);
+
+                    // Optionally, you can display the front text initially:
+                    cardItem.setAttribute('data-text', frontFace.oracle_text);
+                    cardItem.setAttribute('data-type', frontFace.type_line);
+                } else {
+                    cardText = data.oracle_text || '';
+                    cardType = data.type_line || '';
+
+                    cardItem.setAttribute('data-text', cardText);
+                    cardItem.setAttribute('data-type', cardType);
+                }
+
+                // Populate version dropdown and ensure correct version is selected
+                populateVersionDropdown(data, versionSelect, cardImage, cardPrice, cardNumber);
+            })
+            .catch(() => {
+                cardPrice.textContent = 'Price not available';
+            });
+    });
+
+    return Promise.all(fetchPromises);
+}
+
+function populateVersionDropdown(data, dropdown, cardImage, cardPrice, cardNumber) {
+    dropdown.innerHTML = '';
+
+    if (data.prints_search_uri) {
+        fetch(data.prints_search_uri)
+            .then(response => response.json())
+            .then(printsData => {
+                let selectedOption = null;
+                printsData.data.forEach(print => {
+                    const option = document.createElement('option');
+                    option.value = print.id;
+                    option.textContent = `${print.set_name} - ${print.collector_number}`;
+                    dropdown.appendChild(option);
+
+                    // Check if the collector number exactly matches including any suffix (like 'p' or in this case '871')
+                    if (print.collector_number.toLowerCase() === cardNumber.toLowerCase()) {
+                        selectedOption = option;
+                    }
+                });
+                if (selectedOption) {
+                    dropdown.value = selectedOption.value;
+                    updateCardImage(selectedOption.value, cardImage, cardPrice, data.name);
+                } else {
+                    // Default to the first option if no match found
+                    dropdown.value = dropdown.options[0].value;
+                    updateCardImage(dropdown.value, cardImage, cardPrice, data.name);
+                }
+            });
+    }
+}
+
+
+function openModal(src, cardName) {
+    const frontImageUrl = src;
+    let showingFront = true;
+    let currentRotation = 0;
+
+    fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.layout === 'transform' && data.card_faces.length > 1) {
+                const backImageUrl = data.card_faces[1].image_uris.large;
+                const frontText = data.card_faces[0].oracle_text;
+                const backText = data.card_faces[1].oracle_text;
+
+                document.getElementById('toggleButton').style.display = 'inline';
+                document.getElementById('toggleButton').onclick = () => {
+                    const modalImg = document.getElementById('modalImage');
+                    const modalText = document.getElementById('tooltip'); // Use tooltip to display the card text
+
+                    if (showingFront) {
+                        modalImg.src = backImageUrl;
+                        modalText.innerHTML = backText;
+                        document.getElementById('toggleButton').textContent = 'Show Front';
+                    } else {
+                        modalImg.src = frontImageUrl;
+                        modalText.innerHTML = frontText;
+                        document.getElementById('toggleButton').textContent = 'Show Back';
+                    }
+                    showingFront = !showingFront;
+                };
+            } else {
+                document.getElementById('toggleButton').style.display = 'none';
+            }
+        })
+        .catch(() => {
+            document.getElementById('toggleButton').style.display = 'none';
+        });
+
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = "block";
+    modalImg.src = frontImageUrl;
+    modalImg.style.transform = `rotate(0deg)`;
+
+    document.getElementById('rotateButton').onclick = () => {
+        currentRotation = (currentRotation + 90) % 360;
+        modalImg.style.transform = `rotate(${currentRotation}deg)`;
+    };
+}
+
+function updateCardImage(cardId, cardImage, cardPrice, cardName) {
+    fetch(`https://api.scryfall.com/cards/${cardId}`)
+        .then(response => response.json())
+        .then(data => {
+            cardImage.src = data.image_uris.large;
+            cardImage.onerror = () => {
+                cardImage.src = 'https://via.placeholder.com/150x210?text=Card+Not+Found';
+            };
+            cardImage.onclick = () => {
+                openModal(cardImage.src, cardName);
+            };
+
+            if (data.prices && data.prices.usd) {
+                const usdPrice = parseFloat(data.prices.usd);
+                const zarPrice19 = (usdPrice * 19).toFixed(2);
+                const zarPrice18 = (usdPrice * 18).toFixed(2);
+                cardPrice.textContent = `USD: $${usdPrice} | ZAR (19): R${zarPrice19} | ZAR (18): R${zarPrice18}`;
+            } else {
+                cardPrice.textContent = 'Price not available';
+            }
+        });
+}
+
+function togglePrices() {
+    const showPrices = document.getElementById('priceToggle').checked;
+    document.querySelectorAll('.card-price').forEach(price => {
+        price.style.display = showPrices ? 'block' : 'none';
+    });
+}
+
+function openModal(src, cardName) {
+    const frontImageUrl = src;
+    let showingFront = true;
+    let currentRotation = 0;
+
+    fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.card_faces && data.card_faces.length > 1) {
+                const backImageUrl = data.card_faces[1].image_uris.large;
+
+                document.getElementById('toggleButton').style.display = 'inline';
+                document.getElementById('toggleButton').onclick = () => {
+                    const modalImg = document.getElementById('modalImage');
+                    const modalText = document.getElementById('tooltip'); // Use tooltip to display the card text
+
+                    if (showingFront) {
+                        modalImg.src = backImageUrl;
+                        modalText.innerHTML = data.card_faces[1].oracle_text;
+                        document.getElementById('toggleButton').textContent = 'Show Front';
+                    } else {
+                        modalImg.src = frontImageUrl;
+                        modalText.innerHTML = data.card_faces[0].oracle_text;
+                        document.getElementById('toggleButton').textContent = 'Show Back';
+                    }
+                    showingFront = !showingFront;
+                };
+            } else {
+                document.getElementById('toggleButton').style.display = 'none';
+            }
+        })
+        .catch(() => {
+            document.getElementById('toggleButton').style.display = 'none';
+        });
+
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = "block";
+    modalImg.src = frontImageUrl;
+    modalImg.style.transform = `rotate(0deg)`;
+
+    document.getElementById('rotateButton').onclick = () => {
+        currentRotation = (currentRotation + 90) % 360;
+        modalImg.style.transform = `rotate(${currentRotation}deg)`;
+    };
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = "none";
+}
+
+window.onclick = function (event) {
+    const modal = document.getElementById('imageModal');
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+function toggleNavMenu() {
+    const navMenu = document.getElementById('nav-menu');
+    navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function toggleInputContainer() {
+    const inputContainer = document.getElementById('input-container');
+    inputContainer.style.display = inputContainer.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function closeInputContainer() {
+    document.getElementById('input-container').style.display = 'none';
+}
+
+function toggleSearchContainer() {
+    const searchContainer = document.getElementById('search-container');
+    searchContainer.style.display = searchContainer.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function closeSearchContainer() {
+    document.getElementById('search-container').style.display = 'none';
+}
+
+function searchCards() {
+    const name = document.getElementById('name').value;
+    const type = document.getElementById('type').value;
+    const colors = document.getElementById('colors').value;
+    const rarity = document.getElementById('rarity').value;
+    const setName = document.getElementById('setName').value;
+
+    let queryString = '?';
+
+    if (name) queryString += `name=${name}&`;
+    if (type) queryString += `type=${type}&`;
+    if (colors) queryString += `colors=${colors.replace(/\s/g, '')}&`;
+    if (rarity) queryString += `rarity=${rarity}&`;
+    if (setName) queryString += `setName=${setName}&`;
+
+    fetch(`https://api.magicthegathering.io/v1/cards${queryString}`)
+        .then(response => response.json())
+        .then(data => {
+            const cards = data.cards;
+            const cardListElement = document.getElementById('card-list');
+            cardListElement.innerHTML = '';
+
+            if (cards.length === 0) {
+                cardListElement.innerHTML = '<p>No cards found matching the criteria.</p>';
+            } else {
+                cards.forEach(card => {
+                    const cardItem = document.createElement('li');
+                    cardItem.classList.add('card-item');
+
+                    const cardLegalities = document.createElement('div');
+                    cardLegalities.classList.add('card-legalities');
+                    cardLegalities.innerHTML = `
+                        <div class="symbol" data-type="standard">S</div>
+                        <div class="symbol" data-type="commander">C</div>
+                        <div class="symbol" data-type="pioneer">Pi</div>
+                        <div class="symbol" data-type="brawl">B</div>
+                        <div class="symbol" data-type="thg">THG</div>
+                        <div class="symbol" data-type="pauper">Pu</div>
+                    `;
+                    cardItem.appendChild(cardLegalities);
+
+                    const cardName = document.createElement('div');
+                    cardName.classList.add('card-name');
+                    cardName.textContent = card.name;
+
+                    const cardImage = document.createElement('img');
+                    cardImage.classList.add('card-image');
+                    cardImage.src = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image`;
+                    cardImage.onerror = () => {
+                        cardImage.src = 'https://via.placeholder.com/150x210?text=Card+Not+Found';
+                    };
+                    cardImage.onclick = () => {
+                        openModal(cardImage.src, card.name);
+                    };
+
+                    const cardPrice = document.createElement('div');
+                    cardPrice.classList.add('card-price');
+                    if (card.prices && card.prices.usd) {
+                        const usdPrice = parseFloat(card.prices.usd);
+                        const zarPrice19 = (usdPrice * 19).toFixed(2);
+                        const zarPrice18 = (usdPrice * 18).toFixed(2);
+                        cardPrice.textContent = `USD: $${usdPrice} | ZAR (19): R${zarPrice19} | ZAR (18): R${zarPrice18}`;
+                    } else {
+                        cardPrice.textContent = 'Price not available';
+                    }
+
+                    cardItem.appendChild(cardName);
+                    cardItem.appendChild(cardImage);
+                    cardItem.appendChild(cardPrice);
+                    cardListElement.appendChild(cardItem);
+
+                    const versionSelect = document.createElement('select');
+                    versionSelect.classList.add('card-version');
+                    versionSelect.onchange = () => {
+                        updateCardImage(versionSelect.value, cardImage, cardPrice, card.name);
+                    };
+                    cardItem.appendChild(versionSelect);
+
+                    populateVersionDropdown(card, versionSelect, cardImage, cardPrice);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer.files;
+    if (files.length) {
+        handleFileUpload({ target: { files: files } });
+    }
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        const cardNames = [];
+        for (let i = 1; i < json.length; i++) {
+            const row = json[i];
+            const quantity = row[0] || '1x';
+            const cardName = row[1];
+            if (cardName) {
+                cardNames.push(`${quantity} ${cardName}`);
+            }
+        }
+
+        document.getElementById('deck-input').value = cardNames.join('\n');
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+document.getElementById('drop-area').addEventListener('click', () => {
+    document.getElementById('excelUpload').click();
+});
+
+function downloadExcel() {
+    const cardList = document.querySelectorAll('.card-item');
+    const cardData = [];
+
+    cardList.forEach(card => {
+        const cardNameElement = card.querySelector('.card-name');
+        let cardName = cardNameElement.textContent.trim();
+        const cardPriceText = card.querySelector('.card-price').textContent.trim();
+        const selectedVersion = card.querySelector('.card-version').selectedOptions[0]?.textContent || '';
+
+        const quantityMatch = cardName.match(/^(\d+x)\s+/);
+        let quantity = '1x';
+        if (quantityMatch) {
+            quantity = quantityMatch[1];
+            cardName = cardName.replace(quantity, '').trim();
+        }
+
+        let usdPrice = null, zarPrice19 = null, zarPrice18 = null;
+
+        if (cardPriceText !== 'Price not available') {
+            const prices = cardPriceText.split('|');
+            prices.forEach(price => {
+                const trimmedPrice = price.trim();
+                if (trimmedPrice.startsWith('USD: $')) {
+                    usdPrice = parseFloat(trimmedPrice.replace('USD: $', ''));
+                } else if (trimmedPrice.startsWith('ZAR (19): R')) {
+                    zarPrice19 = parseFloat(trimmedPrice.replace('ZAR (19): R', ''));
+                } else if (trimmedPrice.startsWith('ZAR (18): R')) {
+                    zarPrice18 = parseFloat(trimmedPrice.replace('ZAR (18): R', ''));
+                }
+            });
+        }
+
+        const cardType = card.getAttribute('data-type') || '';
+        const cardText = card.getAttribute('data-text') || '';
+
+        const versionNumber = selectedVersion.split('-').pop().trim();
+        cardName = `${cardName}`;
+
+        cardData.push({ quantity, cardName, cardType, cardText, usdPrice, zarPrice19, zarPrice18, selectedVersion });
+    });
+
+    const workbook = XLSX.utils.book_new();
+    const worksheetData = cardData.map(card => ({
+        'Quantity': card.quantity,
+        'Card Name': card.cardName,
+        'Card Type': card.cardType,
+        'Card Text': card.cardText,
+        'USD Price': card.usdPrice,
+        'ZAR Price (19)': card.zarPrice19,
+        'ZAR Price (18)': card.zarPrice18,
+        'Selected Version': card.selectedVersion
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Cards');
+    XLSX.writeFile(workbook, 'card_data.xlsx');
+}
+
+</script>
+</body>
+</html>
